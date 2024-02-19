@@ -24,6 +24,7 @@ import {
   Pressable,
 } from 'react-native';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
+import { createStackNavigator } from '@react-navigation/stack';
 
 import {
   Colors,
@@ -81,7 +82,10 @@ const Home = () => {
   )
 }
 
-const Settings = () =>{
+const Settings = ({route, navigation}) => {
+
+  const {name, location} = route.params
+
   return(
     <SafeAreaView>
       <View>
@@ -89,7 +93,7 @@ const Settings = () =>{
           <View style={setting.headerContent}>
             <View style={{ flex: 1 }}>
               <Text style={setting.name}>Welcome</Text>
-              <Text style={setting.userInfo}>Amir</Text>
+              <Text style={setting.userInfo}>{name}</Text>
             </View>
             <View>
               <MaterialCommunityIcons name='account' color={'black'} size={50}/>
@@ -100,7 +104,7 @@ const Settings = () =>{
         <View style={setting.body}>
           <Pressable style={setting.RectangleShapeView}>
             <Text style={setting.headtText}>Office location</Text>
-            <Text style={setting.SubjectText}>Indonesia</Text>
+            <Text style={setting.SubjectText}>{location}</Text>
           </Pressable>
           <Pressable style={setting.RectangleShapeView}>
             <Text style={setting.headtText}>Date</Text>
@@ -112,28 +116,77 @@ const Settings = () =>{
   )
 }
 
-const Tabs = () => {
-  const Tab = createBottomTabNavigator();
+const Signin = ({navigation}) =>{
+  const [name, setName] = useState("")
+  const [location, setLocation] = useState("")
+
   return(
+    <SafeAreaView>
+      <ScrollView style={styles.sectionContainer}>
+      <View style={styles.formContainer}>
+        <Text style={styles.heading}> Login </Text>
+        <View style={styles.formContainer}>
+          <TextInput
+            placeholder="Nama"
+            onChangeText={(item) => setName(item)}
+            value={name}
+            style={styles.input}
+          />
+          <TextInput
+            placeholder="Location"
+            style={styles.input}
+            onChangeText={(item) => setLocation(item)}
+            value={location}
+          />
+        </View>
+        <TouchableHighlight style={styles.button}>
+          <Text style={styles.buttonText} onPress={() => navigation.navigate("Tabs", {
+            screen: "Profile", 
+            params: {
+              name: name,
+              location: location
+            }
+        })}>Login</Text>
+        </TouchableHighlight>
+      </View>
+    </ScrollView>
+    </SafeAreaView>
+  )
+}
+
+const Tabs = ({navigation}) => {
+  const Tab = createBottomTabNavigator();
+  return (
     <Tab.Navigator>
-      <Tab.Screen name="Home" component={Home} options={{
-        tabBarIcon: ({}) => (
-          <MaterialCommunityIcons name='home' color={'black'} size={20}/>
-        ),
-      }}/>
-      <Tab.Screen name="Profile" component={Settings} options={{
-        tabBarIcon: ({}) => (
-          <MaterialCommunityIcons name='account' color={'black'} size={20}/>
-        ),
-      }}/>
-    </Tab.Navigator>
+        <Tab.Screen name="Home" component={Home} options={{
+          tabBarIcon: ({ }) => (
+            <MaterialCommunityIcons name='home' color={'black'} size={20} />
+          ),
+        }} />
+        <Tab.Screen name="Profile" component={Settings} options={{
+          tabBarIcon: ({ }) => (
+            <MaterialCommunityIcons name='account' color={'black'} size={20} />
+          ),
+          headerRight: ({}) =>(
+            <Button title='Logout' onPress={() =>navigation.goBack()}/>
+          )
+        }} />
+      </Tab.Navigator>
   )
 }
 
 export default function App(): React.JSX.Element {
+  const Stack = createStackNavigator();
   return (
     <NavigationContainer>
-      <Tabs/>
+      <Stack.Navigator
+      initialRouteName="Signin" // Add this to set initial screen
+      screenOptions={{
+        headerShown: false,
+      }}>
+      <Stack.Screen name="Signin" component={Signin} />
+      <Stack.Screen name="Tabs" component={Tabs} />
+    </Stack.Navigator>
     </NavigationContainer>
   );
 }
