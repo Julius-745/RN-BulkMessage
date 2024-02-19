@@ -2,3 +2,5 @@
 /android
 /ios
 /__tests__
+.env
+/vendor
